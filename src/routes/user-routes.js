@@ -1,7 +1,4 @@
 import { Router } from "express";
-import bcrypt from 'bcrypt';
-import { SignJWT, jwtVerify } from 'jose';
-import { pool } from "../db.js"
 import { getUser, createUser, login, getLogin, deleteUser, actualizateUser } from "../controllers/user-controllers.js";
 
 
