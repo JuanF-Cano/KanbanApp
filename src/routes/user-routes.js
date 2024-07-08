@@ -47,14 +47,15 @@ userRouter.post('/users', async (req, res) => {
         if (!isPasswordValid) return res.status(401).send('Contraseña inválida');
   
         const encoder = new TextEncoder();
-        const id = user.id;
+        const id = user.id_users;
+        console.log(id)
         const jwtConstructor = new SignJWT({ id });
         const jwt = await jwtConstructor
             .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
             .setIssuedAt()
             .setExpirationTime('1h')
             .sign(encoder.encode(secret));
-  
+        
         return res.send({ jwt });
     } catch (err) {
         console.error(err);
@@ -68,10 +69,10 @@ userRouter.get("/login", async (req, res) => {
   
     try {
       const encoder = new TextEncoder();
-      const obj = await jwtVerify(authorization, encoder.encode(secret))
-      console.log(obj)
+      const { payload } = await jwtVerify(authorization, encoder.encode(secret));
+      console.log(payload)
       const result = await pool.query('SELECT * FROM users');
-      const user = result.find((user) => user.id === payload.id);
+      const user = result.find((user) => user.id_users === payload.id_users);
       if (!user) return res.status(401).send();
     
       delete user.password;
