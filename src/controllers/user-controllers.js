@@ -5,7 +5,7 @@ import { validateUser } from "../../validacion.js"; // Importa la función valid
 import dotenv from "dotenv"; // Importa dotenv para cargar variables de entorno desde un archivo .env
 
 dotenv.config(); // Carga las variables de entorno desde el archivo .env
-const secret = process.env.SECRET; // Asigna la variable de entorno SECRET a la constante secret
+const secret = process.env.secret; // Asigna la variable de entorno SECRET a la constante secret
 
 // Middleware de autenticación
 const authenticateToken = async (req, res, next) => { 
