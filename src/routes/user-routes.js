@@ -6,7 +6,24 @@ import { pool } from "../db.js"
 const secret = 'aguapanelaconlimon10';
 const userRouter = Router();
 
-userRouter.get('/users', async (req, res) => {
+// Middleware de autenticación
+const authenticateToken = async (req, res, next) => {
+    const { authorization } = req.headers;
+
+    if (!authorization) return res.status(401).send('Token no proporcionado');
+
+    try {
+        const encoder = new TextEncoder();
+        const { payload } = await jwtVerify(authorization, encoder.encode(secret));
+        req.user = payload; 
+        next(); 
+    } catch (err) {
+        console.error(err);
+        return res.status(401).send('Token inválido o expirado');
+    }
+};
+
+userRouter.get('/users', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM users');
         res.status(200).json(result.rows);
@@ -30,9 +47,9 @@ userRouter.post('/users', async (req, res) => {
         console.error(err);
         res.status(500).send('Error creating user');
     }
-  });
+});
 
-  userRouter.post("/login", async (req, res) => {
+userRouter.post("/login", async (req, res) => {
     const { email, password } = req.body;
   
     if (!email || !password) return res.status(400).send('Email y contraseña son requeridos');
@@ -62,18 +79,11 @@ userRouter.post('/users', async (req, res) => {
     }
 });
 
-userRouter.get("/login", async (req, res) => {
-    const { authorization } = req.headers;
-    console.log(authorization)
-    if (!authorization) {
-        return res.status(401).send('Token no proporcionado');
-    }
+userRouter.get("/login", authenticateToken, async (req, res) => {
+    const { id_users } = req.user;
 
     try {
-        const encoder = new TextEncoder();
-        const { payload } = await jwtVerify(authorization, encoder.encode(secret));
-        console.log(payload)
-        const result = await pool.query('SELECT * FROM users WHERE id_users = $1', [payload.id_users]);
+        const result = await pool.query('SELECT * FROM users WHERE id_users = $1', [id_users]);
         const user = result.rows[0];
         
         if (!user) return res.status(401).send('Usuario no encontrado');
@@ -88,7 +98,7 @@ userRouter.get("/login", async (req, res) => {
 });
 
 // Eliminar usuario por ID
-userRouter.delete('/users/:id', async (req, res) => {
+userRouter.delete('/users/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -105,9 +115,11 @@ userRouter.delete('/users/:id', async (req, res) => {
 });
 
 // Actualizar usuario por ID
-userRouter.put('/users/:id', async (req, res) => {
+userRouter.put('/users/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { name, email, password } = req.body;
+
+    if (!name || !email || !password) return res.status(401).send('Faltan datos');
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -119,19 +131,13 @@ userRouter.put('/users/:id', async (req, res) => {
 
         if (!user) return res.status(404).send('Usuario no encontrado');
 
-        res.status(200).json(user);
+        delete user.password;
+
+        return res.status(200).json(user);
     } catch (err) {
         console.error(err);
         res.status(500).send('Error al actualizar el usuario');
     }
 });
-
-/* userRouter.delete('/users/:id', (req, res) => {
-    res.send("funciona");
-});
-
-userRouter.put('/users/:id', (req, res) => {
-    res.send("funciona");
-}); */
 
 export default userRouter;
