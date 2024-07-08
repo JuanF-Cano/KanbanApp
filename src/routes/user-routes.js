@@ -20,7 +20,7 @@ const userRouter = Router();
     } else {
         res.status(401).send('Token required');
     }
-}; */
+}; 
 
 userRouter.get('/users', async (req, res) => {
     try {
