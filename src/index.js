@@ -16,7 +16,7 @@ const app = express();
 
 //app.use("/api", express.static(path.join(__dirname, "public")));
 app.use(express.json())
-app.use('/api', userRouter, taskRouter, sectionRouter)
+app.use('/api', userRouter)
 app.use('/api', taskRouter)
 app.use('/api', sectionRouter)
 
