@@ -4,7 +4,7 @@ import jwt from 'jwt-simple';
 import { pool } from "../db.js"
 import { marked } from 'marked';
 
-const secret = 'aguapanelaconlimon10';
+
 const taskRouter = Router();
 
 taskRouter.get('/task', async (req, res) => {
@@ -65,5 +65,6 @@ taskRouter.delete('/task/:id', async (req, res) => {
         res.status(500).send('Error deleting task')
     }
 });
+
 
 export default taskRouter;

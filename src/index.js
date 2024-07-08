@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import userRouter from "./routes/user-routes.js";
 import taskRouter from "./routes/task-routes.js"
+import sectionRouter from "./routes/section-routes.js";
 
 /* import path from "path";
 
@@ -17,6 +18,7 @@ const app = express();
 app.use(express.json())
 app.use('/api', userRouter)
 app.use('/api', taskRouter)
+app.use('/api', sectionRouter)
 
 app.listen(PORT, () => {
   console.clear();
