@@ -1,26 +1,10 @@
 import { Router } from "express";
 import bcrypt from 'bcrypt';
-import jwt from 'jwt-simple';
+import { SignJWT, jwtVerify } from 'jose';
 import { pool } from "../db.js"
 
 const secret = 'aguapanelaconlimon10';
 const userRouter = Router();
-
-/* const checkToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    const { authorization } = req.headers[];
-
-    if (token) {
-        try {
-            const state = jwt.compare(token, )
-            next();
-        } catch (err) {
-            res.status(401).send('Invalid token');
-        }
-    } else {
-        res.status(401).send('Token required');
-    }
-}; */
 
 userRouter.get('/users', async (req, res) => {
     try {
@@ -48,32 +32,55 @@ userRouter.post('/users', async (req, res) => {
     }
   });
 
-  userRouter.post('/login', checkToken, async (req, res) => {
-    const { name, password } = req.body;
-
+  userRouter.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+  
+    if (!email || !password) return res.status(400).send('Email y contraseña son requeridos');
+  
     try {
-        const result = await pool.query('SELECT * FROM users WHERE name = $1', [name]);
-
-        if (result.rows.length > 0) {
-            const user = result.rows[0];
-            const match = await bcrypt.compare(password, user.password);
-
-            if (match) {
-                const payload = { id: user.id, username: user.username };
-                const token = jwt.encode(payload, secret);
-                res.json({ token });
-            } else {
-                res.status(401).send('Invalid username or password');
-            }
-        } else {
-            res.status(401).send('Invalid username or password');
-        }
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const user = result.rows[0];
+        
+        if (!user) return res.status(401).send('Email inválido');
+        
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) return res.status(401).send('Contraseña inválida');
+  
+        const encoder = new TextEncoder();
+        const id = user.id;
+        const jwtConstructor = new SignJWT({ id });
+        const jwt = await jwtConstructor
+            .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+            .setIssuedAt()
+            .setExpirationTime('1h')
+            .sign(encoder.encode(secret));
+  
+        return res.send({ jwt });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error logging in');
+        res.status(500).send('Error al iniciar sesión');
     }
 });
 
+userRouter.get("/login", async (req, res) => {
+    const { authorization } = req.headers;
+    if (!authorization) return res.status(401).send();
+  
+    try {
+      const encoder = new TextEncoder();
+      const obj = await jwtVerify(authorization, encoder.encode(secret))
+      console.log(obj)
+      const result = await pool.query('SELECT * FROM users');
+      const user = result.find((user) => user.id === payload.id);
+      if (!user) return res.status(401).send();
+    
+      delete user.password;
+    
+      return res.send(user);
+    } catch(err) {
+      return res.status(401).send();
+    }
+});
 
 /* userRouter.delete('/users/:id', (req, res) => {
     res.send("funciona");
