@@ -87,27 +87,26 @@ userRouter.get("/login", async (req, res) => {
     }
 });
 
-// Eliminar usuario por ID
 userRouter.delete('/users/:id', async (req, res) => {
     const { id } = req.params;
-
     try {
         const result = await pool.query('DELETE FROM users WHERE id_users = $1 RETURNING *', [id]);
         const user = result.rows[0];
 
         if (!user) return res.status(404).send('Usuario no encontrado');
-
-        res.status(200).json(user);
+        
+        return res.status(200).json(user);
     } catch (err) {
         console.error(err);
         res.status(500).send('Error al eliminar el usuario');
     }
 });
 
-// Actualizar usuario por ID
 userRouter.put('/users/:id', async (req, res) => {
     const { id } = req.params;
     const { name, email, password } = req.body;
+
+    if(!name || !email || !password) return res.status(401).send('Faltan datos');
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -119,7 +118,9 @@ userRouter.put('/users/:id', async (req, res) => {
 
         if (!user) return res.status(404).send('Usuario no encontrado');
 
-        res.status(200).json(user);
+        delete user.password;
+
+        return res.status(200).json(user);
     } catch (err) {
         console.error(err);
         res.status(500).send('Error al actualizar el usuario');
