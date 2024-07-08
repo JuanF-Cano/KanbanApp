@@ -87,12 +87,46 @@ userRouter.get("/login", async (req, res) => {
     }
 });
 
-/* userRouter.delete('/users/:id', (req, res) => {
-    res.send("funciona");
+userRouter.delete('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM users WHERE id_users = $1 RETURNING *', [id]);
+        const user = result.rows[0];
+
+        if (!user) return res.status(404).send('Usuario no encontrado');
+        
+        return res.status(200).json(user);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al eliminar el usuario');
+    }
 });
 
-userRouter.put('/users/:id', (req, res) => {
-    res.send("funciona");
-}); */
+userRouter.put('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+
+    if(!name || !email || !password) return res.status(401).send('Faltan datos');
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+            'UPDATE users SET name = $1, email = $2, password = $3 WHERE id_users = $4 RETURNING *',
+            [name, email, hashedPassword, id]
+        );
+        const user = result.rows[0];
+
+        if (!user) return res.status(404).send('Usuario no encontrado');
+
+        delete user.password;
+
+        return res.status(200).json(user);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al actualizar el usuario');
+    }
+});
+
+
 
 export default userRouter;
