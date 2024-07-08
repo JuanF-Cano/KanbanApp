@@ -1,13 +1,31 @@
 import { Router } from "express";
-import { pool } from "../db.js"
 import bcrypt from 'bcrypt';
+import jwt from 'jwt-simple';
+import { pool } from "../db.js"
 
+const secret = 'aguapanelaconlimon10';
 const userRouter = Router();
+
+/* const checkToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+    const { authorization } = req.headers[];
+
+    if (token) {
+        try {
+            const state = jwt.compare(token, )
+            next();
+        } catch (err) {
+            res.status(401).send('Invalid token');
+        }
+    } else {
+        res.status(401).send('Token required');
+    }
+}; */
 
 userRouter.get('/users', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM users');
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result.rows);
     } catch (err) {
         console.error(err);
         res.status(500).send('Error retrieving users');
@@ -30,7 +48,7 @@ userRouter.post('/users', async (req, res) => {
     }
   });
 
-  userRouter.post('/login', async (req, res) => {
+  userRouter.post('/login', checkToken, async (req, res) => {
     const { name, password } = req.body;
 
     try {
@@ -55,7 +73,6 @@ userRouter.post('/users', async (req, res) => {
         res.status(500).send('Error logging in');
     }
 });
-
 
 
 /* userRouter.delete('/users/:id', (req, res) => {
