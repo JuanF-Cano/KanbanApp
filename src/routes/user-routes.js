@@ -2,11 +2,12 @@ import { Router } from "express";
 import bcrypt from 'bcrypt';
 import { SignJWT, jwtVerify } from 'jose';
 import { pool } from "../db.js"
+import { validateUser } from "../../validacion.js";
 
 const secret = 'aguapanelaconlimon10';
 const userRouter = Router();
 
-userRouter.get('/users', async (req, res) => {
+userRouter.get('/users', validateUser, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM users');
         res.status(200).json(result.rows);
@@ -16,7 +17,7 @@ userRouter.get('/users', async (req, res) => {
     }
 });
 
-userRouter.post('/users', async (req, res) => {
+userRouter.post('/users', validateUser, async (req, res) => {
     const { name, email, password } = req.body;
   
     try {
@@ -32,7 +33,7 @@ userRouter.post('/users', async (req, res) => {
     }
   });
 
-  userRouter.post("/login", async (req, res) => {
+  userRouter.post("/login",  validateUser, async (req, res) => {
     const { email, password } = req.body;
   
     if (!email || !password) return res.status(400).send('Email y contraseña son requeridos');
@@ -62,7 +63,7 @@ userRouter.post('/users', async (req, res) => {
     }
 });
 
-userRouter.get("/login", async (req, res) => {
+userRouter.get("/login",  validateUser, async (req, res) => {
     const { authorization } = req.headers;
     console.log(authorization)
     if (!authorization) {
@@ -87,7 +88,7 @@ userRouter.get("/login", async (req, res) => {
     }
 });
 
-userRouter.delete('/users/:id', async (req, res) => {
+userRouter.delete('/users/:id', validateUser, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('DELETE FROM users WHERE id_users = $1 RETURNING *', [id]);
@@ -102,7 +103,7 @@ userRouter.delete('/users/:id', async (req, res) => {
     }
 });
 
-userRouter.put('/users/:id', async (req, res) => {
+userRouter.put('/users/:id',  validateUser, async (req, res) => {
     const { id } = req.params;
     const { name, email, password } = req.body;
 
