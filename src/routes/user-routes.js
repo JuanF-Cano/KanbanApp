@@ -47,9 +47,8 @@ userRouter.post('/users', async (req, res) => {
         if (!isPasswordValid) return res.status(401).send('Contraseña inválida');
   
         const encoder = new TextEncoder();
-        const id = user.id_users;
-        console.log(id)
-        const jwtConstructor = new SignJWT({ id });
+        const id_users = `${user.id_users}`;
+        const jwtConstructor = new SignJWT({ id_users });
         const jwt = await jwtConstructor
             .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
             .setIssuedAt()
@@ -65,21 +64,26 @@ userRouter.post('/users', async (req, res) => {
 
 userRouter.get("/login", async (req, res) => {
     const { authorization } = req.headers;
-    if (!authorization) return res.status(401).send();
-  
+    console.log(authorization)
+    if (!authorization) {
+        return res.status(401).send('Token no proporcionado');
+    }
+
     try {
-      const encoder = new TextEncoder();
-      const { payload } = await jwtVerify(authorization, encoder.encode(secret));
-      console.log(payload)
-      const result = await pool.query('SELECT * FROM users');
-      const user = result.find((user) => user.id_users === payload.id_users);
-      if (!user) return res.status(401).send();
-    
-      delete user.password;
-    
-      return res.send(user);
-    } catch(err) {
-      return res.status(401).send();
+        const encoder = new TextEncoder();
+        const { payload } = await jwtVerify(authorization, encoder.encode(secret));
+        console.log(payload)
+        const result = await pool.query('SELECT * FROM users WHERE id_users = $1', [payload.id_users]);
+        const user = result.rows[0];
+        
+        if (!user) return res.status(401).send('Usuario no encontrado');
+        
+        delete user.password;
+
+        return res.send(user);
+    } catch (err) {
+        console.error(err);
+        return res.status(401).send('Token inválido o expirado');
     }
 });
 
