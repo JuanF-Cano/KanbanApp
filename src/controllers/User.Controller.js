@@ -1,6 +1,6 @@
 import { pool } from '../db.js'; // Importa la conexión a la base de datos desde el archivo db.js
 import bcrypt from 'bcrypt'; // Importa bcrypt para el hashing de contraseñas
-import { SignJWT, jwtVerify } from 'jose'; // Importa funciones para manejar JSON Web Tokens (JWT)
+import { SignJWT } from 'jose'; // Importa funciones para manejar JSON Web Tokens (JWT)
 
 import dotenv from "dotenv"; // Importa dotenv para cargar variables de entorno desde un archivo .env
 
@@ -10,15 +10,35 @@ const secret = process.env.secret; // Asigna la variable de entorno secret a la 
 
 
 // Exporta la función getUser que obtiene todos los usuarios de la base de datos
-export const getUser = (async (req, res) => {
+export const getUsers = (async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM users'); // Ejecuta una consulta para obtener todos los usuarios
-        res.status(200).json(result.rows); // Responde con los usuarios obtenidos en formato JSON
+        return res.status(200).json(result.rows); // Responde con los usuarios obtenidos en formato JSON
     } catch (err) {
         console.error(err); // Imprime el error en la consola
-        res.status(500).send('Error retrieving users'); // Responde con un error 500 si hay un problema al obtener los usuarios
+        return res.status(500).send('Error retrieving users'); // Responde con un error 500 si hay un problema al obtener los usuarios
     }
 })
+
+// Exporta la función getUserById que obtiene un usuario de la base de datos
+export const getUserById = async (req, res) => {
+    const { id } = req.params; // Extrae el parámetro id
+
+    if (!id) return res.status(400).send('Id is necessary'); // Responde con un error 400 si falta el id
+
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE id_users = $1', [id]); // Consulta a la base de datos para obtener el usuario con esa id
+        if (result.rows.length === 0) {
+            return res.status(404).send('User not found'); // Responde con un error 404 si el usuario no se encuentra
+        }
+    
+        res.status(200).json(result.rows[0]); // Responde con el usuario encontrado en formato JSON
+    } catch (err) {
+        console.error(err); // Imprime el error en la consola
+        res.status(500).send('Error retrieving user'); // Responde con un error 500 si hay un problema al obtener el usuario
+    }
+};
+
 
 // Exporta la función createUser que crea un nuevo usuario en la base de datos
 export const createUser = (async (req, res) => {
@@ -32,8 +52,9 @@ export const createUser = (async (req, res) => {
         );
         res.status(201).json(result.rows[0]); // Responde con el usuario creado en formato JSON
     } catch (err) {
-        console.error(err); // Imprime el error en la consola
-        res.status(500).send('Error creating user'); // Responde con un error 500 si hay un problema al crear el usuario
+        if (err.code == 23505) return res.status(409).send('Email in use')
+
+        return res.status(500).send('Error creating user'); // Responde con un error 500 si hay un problema al crear el usuario
     }
 });
 

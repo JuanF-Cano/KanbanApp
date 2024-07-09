@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { createTask, deleteTask, getTask, updateTask } from "../controllers/task-controllers.js";
-import { authenticateToken  } from "../middleware/validacion.js"; // Importa la función validateUser desde el archivo validacion.js
+import { createTask, deleteTask, getTask, updateTask } from "../controllers/Task.Controller.js";
+import { authenticateToken } from "../middleware/jwt.js";
 
 
 const taskRouter = Router();

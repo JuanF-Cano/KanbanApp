@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getUser, createUser, login, deleteUser, actualizateUser } from "../controllers/user-controllers.js";
-import { validateUser, authenticateToken  } from "../middleware/validacion.js"; // Importa la función validateUser desde el archivo validacion.js
-
+import { getUsers, createUser, login, deleteUser, actualizateUser, getUserById } from "../controllers/User.Controller.js";
+import { validateUser } from "../middleware/models.js";
+import { authenticateToken } from "../middleware/jwt.js";
 
 const userRouter = Router();
 
@@ -9,15 +9,18 @@ const userRouter = Router();
 userRouter.post("/login", validateUser, login);
 
 //register
-userRouter.post('/users', validateUser, createUser);
+userRouter.post('/user', validateUser, createUser);
 
 //getUser
-userRouter.get('/users', getUser);
+userRouter.get('/users', getUsers);
+
+//getUserById
+userRouter.get('/user/:id', authenticateToken, getUserById)
 
 // Eliminar usuario por ID
-userRouter.delete('/users/:id', authenticateToken, deleteUser);
+userRouter.delete('/user/:id', authenticateToken, deleteUser);
 
 // Actualizar usuario por ID
-userRouter.put('/users/:id', validateUser, authenticateToken, actualizateUser);
+userRouter.put('/user/:id', validateUser, authenticateToken, actualizateUser);
 
 export default userRouter;

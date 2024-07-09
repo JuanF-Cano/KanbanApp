@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getSection, createSection, deleteSection, updateSection } from "../controllers/section-controllers.js";
-import { authenticateToken  } from "../middleware/validacion.js"; // Importa la función validateUser desde el archivo validacion.js
+import { getSection, createSection, deleteSection, updateSection } from "../controllers/Section.Controller.js";
+import { authenticateToken } from "../middleware/jwt.js";
 
 const sectionRouter = Router();
 
