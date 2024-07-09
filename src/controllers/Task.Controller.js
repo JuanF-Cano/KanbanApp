@@ -1,11 +1,6 @@
 import { pool } from "../db.js"; // Importa la conexión a la base de datos
 import { marked } from 'marked'; // Importa la biblioteca para convertir Markdown a HTML
 
-/**
- * Obtiene todas las tareas de la base de datos.
- * @param {Object} req - Objeto de solicitud Express.
- * @param {Object} res - Objeto de respuesta Express.
- */
 export const getTask = async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM tasks'); // Consulta todas las tareas
@@ -16,20 +11,15 @@ export const getTask = async (req, res) => {
     }
 }
 
-/**
- * Crea una nueva tarea en la base de datos.
- * @param {Object} req - Objeto de solicitud Express.
- * @param {Object} res - Objeto de respuesta Express.
- */
 export const createTask = async (req, res) => {
-    const { title, body, id_section } = req.body; // Extrae datos del cuerpo de la solicitud
+    const { title, body } = req.body; // Extrae datos del cuerpo de la solicitud
     
     const htmlBody = marked(body); // Convierte el cuerpo Markdown a HTML
   
     try {
         const result = await pool.query(
-            'INSERT INTO tasks (title, body, id_section) VALUES ($1, $2, $3) RETURNING *',
-            [title, htmlBody, id_section]
+            'INSERT INTO tasks (title, body) VALUES ($1, $2) RETURNING *',
+            [title, htmlBody]
         ); // Inserta la nueva tarea en la base de datos
         res.status(201).json(result.rows[0]); // Envía la tarea creada como respuesta JSON
     } catch (err) {
@@ -38,11 +28,6 @@ export const createTask = async (req, res) => {
     }
 }
 
-/**
- * Actualiza una tarea existente en la base de datos.
- * @param {Object} req - Objeto de solicitud Express.
- * @param {Object} res - Objeto de respuesta Express.
- */
 export const updateTask = async (req, res) => {
     const { task_id } = req.params; // Obtiene el ID de la tarea de los parámetros de la URL
     const { title, body, id_section } = req.body; // Extrae datos del cuerpo de la solicitud
@@ -61,11 +46,6 @@ export const updateTask = async (req, res) => {
     }
 }
 
-/**
- * Elimina una tarea de la base de datos.
- * @param {Object} req - Objeto de solicitud Express.
- * @param {Object} res - Objeto de respuesta Express.
- */
 export const deleteTask = async (req, res) => {
     const { task_id } = req.params; // Obtiene el ID de la tarea de los parámetros de la URL
     

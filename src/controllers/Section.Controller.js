@@ -1,12 +1,38 @@
 import { pool } from "../db.js"; // Importa la conexión a la base de datos desde el archivo db.js
 
 // Exporta la función getSection que obtiene todas las secciones de un usuario específico
-export const getSection = async (req, res) => {
+export const getSections = async (req, res) => {
     const id_usuario = req.params.id_users; // Obtiene el ID de usuario de los parámetros de la solicitud
 
     try {
         const result = await pool.query('SELECT * FROM sections WHERE id_users = $1', [id_usuario]); // Ejecuta una consulta para obtener todas las secciones del usuario
         res.send(result.rows); // Responde con las secciones obtenidas en formato JSON
+    } catch (e) {
+        console.error(e); // Imprime el error en la consola
+        res.status(500).send('Error retrieving sections'); // Responde con un error 500 si hay un problema al obtener las secciones
+    }
+}
+
+// Exporta la función getSectionsTasks que obtiene todas las secciones de un usuario específico con sus tareas
+export const getSectionsTasks = async (req, res) => {
+    const id_usuario = req.params.id_users; // Obtiene el ID de usuario de los parámetros de la solicitud
+    
+    try {
+        // Consulta para obtener todas las secciones del usuario
+        const sectionsResult = await pool.query('SELECT * FROM sections WHERE id_users = $1', [id_usuario]);
+        const sections = sectionsResult.rows;
+
+        // Inicializa un array para almacenar las secciones con sus tareas
+        const sectionsTasks = [];
+
+        // Itera sobre cada sección para obtener las tareas asociadas
+        for (const section of sections) {
+            const tasksResult = await pool.query('SELECT * FROM tasks WHERE id_section = $1', [section.id_section]);
+            const tasks = tasksResult.rows;
+            sectionsTasks.push({ section, tasks });
+        }
+
+        return res.send(sectionsTasks)
     } catch (e) {
         console.error(e); // Imprime el error en la consola
         res.status(500).send('Error retrieving sections'); // Responde con un error 500 si hay un problema al obtener las secciones
