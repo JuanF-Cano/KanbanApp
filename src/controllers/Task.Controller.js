@@ -12,14 +12,14 @@ export const getTask = async (req, res) => {
 }
 
 export const createTask = async (req, res) => {
-    const { title, body } = req.body; // Extrae datos del cuerpo de la solicitud
+    const { title, body, id_section } = req.body; // Extrae datos del cuerpo de la solicitud
     
     const htmlBody = marked(body); // Convierte el cuerpo Markdown a HTML
   
     try {
         const result = await pool.query(
-            'INSERT INTO tasks (title, body) VALUES ($1, $2) RETURNING *',
-            [title, htmlBody]
+            'INSERT INTO tasks (title, body, id_section) VALUES ($1, $2, $3) RETURNING *',
+            [title, htmlBody, id_section]
         ); // Inserta la nueva tarea en la base de datos
         res.status(201).json(result.rows[0]); // Envía la tarea creada como respuesta JSON
     } catch (err) {

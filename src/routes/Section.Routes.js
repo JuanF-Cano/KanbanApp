@@ -4,9 +4,9 @@ import { authenticateToken } from "../middleware/jwt.js";
 
 const sectionRouter = Router();
 
-sectionRouter.get("/sections/:id_users", authenticateToken, getSections); 
+sectionRouter.get("/sections/", authenticateToken, getSections); 
 
-sectionRouter.get("/sections/tasks/:id_users", authenticateToken, getSectionsTasks);
+sectionRouter.get("/sections/tasks/", authenticateToken, getSectionsTasks);
 
 sectionRouter.post("/section", authenticateToken, createSection);
 

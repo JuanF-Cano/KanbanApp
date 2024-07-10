@@ -2,7 +2,7 @@ import { pool } from "../db.js"; // Importa la conexión a la base de datos desd
 
 // Exporta la función getSection que obtiene todas las secciones de un usuario específico
 export const getSections = async (req, res) => {
-    const id_usuario = req.params.id_users; // Obtiene el ID de usuario de los parámetros de la solicitud
+    const id_usuario = req.user.id_users; // Obtiene el ID de usuario de los parámetros de la solicitud
 
     try {
         const result = await pool.query('SELECT * FROM sections WHERE id_users = $1', [id_usuario]); // Ejecuta una consulta para obtener todas las secciones del usuario
@@ -15,7 +15,7 @@ export const getSections = async (req, res) => {
 
 // Exporta la función getSectionsTasks que obtiene todas las secciones de un usuario específico con sus tareas
 export const getSectionsTasks = async (req, res) => {
-    const id_usuario = req.params.id_users; // Obtiene el ID de usuario de los parámetros de la solicitud
+    const id_usuario = req.user.id_users; // Obtiene el ID de usuario de los parámetros de la solicitud
     
     try {
         // Consulta para obtener todas las secciones del usuario
@@ -40,11 +40,11 @@ export const getSectionsTasks = async (req, res) => {
 }
 
 // Exporta la función createSection que crea una nueva sección para un usuario
-export const createSection = (req, res) => {
-    const { id_users, title } = req.body; // Obtiene el ID de usuario y el título de la sección del cuerpo de la solicitud
-
+export const createSection = async (req, res) => {
+    const { title } = req.body; // Obtiene el ID de usuario y el título de la sección del cuerpo de la solicitud
+    const id_users = req.user.id_users
     try {
-        const result = pool.query('INSERT INTO sections (id_users, title) VALUES ($1, $2) RETURNING *', [id_users, title]); // Inserta la nueva sección en la base de datos
+        const result = await pool.query('INSERT INTO sections (id_users, title) VALUES ($1, $2) RETURNING *', [id_users, title]); // Inserta la nueva sección en la base de datos
         //responde con el codigo http y un mensaje claro sobre los cambios realizados
         res
           .status(201)
