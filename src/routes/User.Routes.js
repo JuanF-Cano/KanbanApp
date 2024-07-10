@@ -11,9 +11,6 @@ userRouter.post("/login", validateLogin, login);
 //register
 userRouter.post('/user', validateUser, createUser);
 
-//getUser
-userRouter.get('/users', getUsers);
-
 //getUserById
 userRouter.get('/user', authenticateToken, getUserById)
 
@@ -22,5 +19,6 @@ userRouter.delete('/user', authenticateToken, deleteUser);
 
 // Actualizar usuario por ID
 userRouter.put('/user', authenticateToken, validateUser, actualizateUser);
+userRouter.put('/user', validateUser, authenticateToken, actualizateUser);
 
 export default userRouter;

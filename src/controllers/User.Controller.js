@@ -120,7 +120,7 @@ export const deleteUser = (async (req, res) => {
 export const actualizateUser = (async (req, res) => {
     const  id  = req.user.id_users;// Obtiene el ID del usuario de los parámetros de la solicitud
     const { name, email, password } = req.body; // Obtiene el nombre, correo electrónico y contraseña del cuerpo de la solicitud
-
+    const id = req.user.id_users;
     if (!name || !email || !password) return res.status(401).send('Faltan datos'); // Responde con un error 401 si faltan datos
 
     try {
