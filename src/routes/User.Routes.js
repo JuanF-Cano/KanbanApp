@@ -9,18 +9,18 @@ const userRouter = Router();
 userRouter.post("/login", validateEmail, login);
 
 //register
-userRouter.post('/user', validateUser, createUser);
+userRouter.post('/user', createUser);
 
 //getUser
 userRouter.get('/users', getUsers);
 
 //getUserById
-userRouter.get('/user/:id', authenticateToken, getUserById)
+userRouter.get('/user', authenticateToken, getUserById)
 
 // Eliminar usuario por ID
-userRouter.delete('/user/:id', authenticateToken, deleteUser);
+userRouter.delete('/user', authenticateToken, deleteUser);
 
 // Actualizar usuario por ID
-userRouter.put('/user/:id', authenticateToken, validateUser, actualizateUser);
+userRouter.put('/user', authenticateToken, validateUser, actualizateUser);
 
 export default userRouter;
