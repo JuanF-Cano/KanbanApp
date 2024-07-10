@@ -87,8 +87,8 @@ export const updateSection = async (req: Request, res: Response): Promise<void> 
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).send('Sección no encontrada');
-    }
+    }      return res.status(404).send('Sección no encontrada');
+
 
     res.send(`Se actualizó la sección: ${JSON.stringify(result.rows[0])}`);
   } catch (e) {
