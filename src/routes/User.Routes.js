@@ -6,7 +6,7 @@ import { authenticateToken } from "../middleware/jwt.js";
 const userRouter = Router();
 
 //login
-userRouter.post("/login", validateUser, login);
+userRouter.post("/login", login);
 
 //register
 userRouter.post('/user', validateUser, createUser);
@@ -15,12 +15,12 @@ userRouter.post('/user', validateUser, createUser);
 userRouter.get('/users', getUsers);
 
 //getUserById
-userRouter.get('/user/:id', authenticateToken, getUserById)
+userRouter.get('/user', authenticateToken, getUserById)
 
 // Eliminar usuario por ID
-userRouter.delete('/user/:id', authenticateToken, deleteUser);
+userRouter.delete('/user', authenticateToken, deleteUser);
 
 // Actualizar usuario por ID
-userRouter.put('/user/:id', validateUser, authenticateToken, actualizateUser);
+userRouter.put('/user', validateUser, authenticateToken, actualizateUser);
 
 export default userRouter;

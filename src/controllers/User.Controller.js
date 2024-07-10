@@ -22,7 +22,7 @@ export const getUsers = (async (req, res) => {
 
 // Exporta la función getUserById que obtiene un usuario de la base de datos
 export const getUserById = async (req, res) => {
-    const { id } = req.params; // Extrae el parámetro id
+    const  id  = req.user.id_users; // Extrae el parámetro id
 
     if (!id) return res.status(400).send('Id is necessary'); // Responde con un error 400 si falta el id
 
@@ -91,7 +91,7 @@ export const login = (async (req, res) => {
 
 // Exporta la función deleteUser que elimina un usuario de la base de datos
 export const deleteUser = (async (req, res) => {
-    const { id } = req.params; // Obtiene el ID del usuario de los parámetros de la solicitud
+    const  id  = req.user.id_users; // Obtiene el ID del usuario de los parámetros de la solicitud
 
     try {
         const result = await pool.query('DELETE FROM users WHERE id_users = $1 RETURNING *', [id]); // Ejecuta una consulta para eliminar el usuario por ID
@@ -108,9 +108,8 @@ export const deleteUser = (async (req, res) => {
 
 // Exporta la función actualizateUser que actualiza la información de un usuario en la base de datos
 export const actualizateUser = (async (req, res) => {
-    const { id } = req.params; // Obtiene el ID del usuario de los parámetros de la solicitud
     const { name, email, password } = req.body; // Obtiene el nombre, correo electrónico y contraseña del cuerpo de la solicitud
-
+    const id = req.user.id_users;
     if (!name || !email || !password) return res.status(401).send('Faltan datos'); // Responde con un error 401 si faltan datos
 
     try {
