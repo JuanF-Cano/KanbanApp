@@ -79,7 +79,7 @@ export const login = (async (req, res) => {
         const jwt = await jwtConstructor
             .setProtectedHeader({ alg: 'HS256', typ: 'JWT' }) // Establece el encabezado del JWT
             .setIssuedAt() // Establece la fecha de emisión del JWT
-            .setExpirationTime('7h') // Establece la fecha de expiración del JWT
+            .setExpirationTime('1h') // Establece la fecha de expiración del JWT
             .sign(encoder.encode(secret)); // Firma el JWT con la clave secreta
         
         return res.send({ jwt }); // Responde con el JWT generado

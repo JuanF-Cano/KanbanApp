@@ -5,6 +5,26 @@ const validateEmail = (email) => {
   return re.test(String(email).toLowerCase());
 };
 
+const validateLogin = (req, res, next) => {
+  const { email, password } = req.body;
+
+  // Verificar que email sea un email válido y tenga como máximo 100 caracteres
+  if (!validateEmail(email) || email.length > 100) {
+    return res
+      .status(400)
+      .send("El email debe ser válido y tener máximo 100 caracteres");
+  }
+
+  // Verificar que password sea una cadena y tenga como máximo 100 caracteres
+  if (typeof password !== "string" || password.length > 100 || password.length < 4) {
+    return res
+      .status(400)
+      .send("La contraseña debe ser una cadena entre 4 y 100 caracteres");
+  }
+
+  next();
+}
+
 // Middleware de validación personalizado
 const validateUser = (req, res, next) => {
   const { name, email, password } = req.body;
@@ -35,4 +55,4 @@ const validateUser = (req, res, next) => {
   next();
 };
 
-export { validateUser, validateEmail };
+export { validateUser, validateLogin };
